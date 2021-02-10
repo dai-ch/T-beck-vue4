@@ -7,21 +7,19 @@
       <table class="table">
         <tr class="tr">
           <td>
-            <label>メールアドレス</label
-            ><input type="text" placeholder="E-mail" v-model="mailAdress" />
+            <label>メールアドレス</label>
+            <input type="text" placeholder="E-mail" v-model="mailAdress" />
           </td>
         </tr>
         <tr class="tr">
           <td>
-            <label>パスワード</label
-            ><input type="password" placeholder="Password" v-model="password" />
+            <label>パスワード</label>
+            <input type="password" placeholder="Password" v-model="password" />
           </td>
         </tr>
         <button class="btn" v-on:click="signUp">
-          <router-link to="/users" class="routerBtn"
-            >新規登録</router-link
-          ></button
-        ><br />
+          <router-link to="/users" class="routerBtn">新規登録</router-link>
+        </button><br />
         <router-link to="/" class="router">ログインはこちらから</router-link>
       </table>
     </form>
