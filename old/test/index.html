@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="form__title">
+        <span class="form__title__step">STEP1</span>
+        <p class="text-l">お客様の情報を入力してください</p>
+      </div>
+      <form action="">
+        <div class="question__list">
+          <div class="question__item">
+            <p class="">-性別-</p>
+            <div v-for="gender in genders">
+              <input type="radio" name="gender" v-bind:value="gender">{{gender}}
+            </div>
+          </div>
+
+          <div class="question__item">
+            <p class="question">-生年月日-</p>
+            <label><select class="select" name="year">
+                <option v-for="year in yearsList" v-bind:value="year">
+                  {{year}}</option>
+              </select>年</label>
+
+            <label><select class="select" name="month">
+                <option v-for="month in monthList" v-bind:value="month">{{month}}</option>
+              </select>月</label>
+
+            <select class="select" name="day">
+              <option v-for="day in dayList" value="day">{{day}}</option>
+
+            </select>
+          </div>
+          <label>日</label>
+        </div>
+      </form>
+    </div>
+    <button class="next__btn" src="">次へ進む<span class="next__btn__span">&nbsp;&nbsp;&nbsp;&nbsp;&gt;</span></button>
+
+  </body>
+  <script src="js/main.js"></script>
+
+</html>

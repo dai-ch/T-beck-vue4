@@ -1,4 +1,4 @@
-# vue-kadai4
+# t-beck-vue2-cli
 
 ## Project setup
 ```
