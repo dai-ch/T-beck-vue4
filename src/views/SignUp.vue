@@ -18,7 +18,7 @@
           </td>
         </tr>
         <button class="btn">
-          <router-link to="/users" class="routerBtn" v-on:click="createUserAccount"
+          <router-link to="/users" class="routerBtn" v-on:click="signUp"
             >新規登録</router-link
           ></button
         ><br />
@@ -31,7 +31,7 @@
 
 <script>
 import CopyRight from '@/components/CopyRight.vue';
-
+import firebase from 'firebase';
 
 export default {
   name: 'SignUp',
@@ -45,6 +45,17 @@ export default {
     CopyRight,
   },
   methods: {
+    signUp: function() {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.mailAdress, this.password)
+        .then((user) => {
+          alert('Create account: ', user.email);
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    },
   },
 };
 </script>
