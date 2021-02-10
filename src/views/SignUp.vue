@@ -17,8 +17,8 @@
             ><input type="password" placeholder="Password" v-model="password" />
           </td>
         </tr>
-        <button class="btn">
-          <router-link to="/users" class="routerBtn" v-on:click="signUp"
+        <button class="btn" v-on:click="signUp">
+          <router-link to="/users" class="routerBtn"
             >新規登録</router-link
           ></button
         ><br />
