@@ -1,5 +1,5 @@
 {
-  "name": "vue-kadai4-nagezenikanri",
+  "name": "t-beck-vue4",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -42,17 +42,5 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ],
-  "description": "## Project setup ``` npm install ```",
-  "main": "babel.config.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dai-ch/T-beck-vue4.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/dai-ch/T-beck-vue4/issues"
-  },
-  "homepage": "https://github.com/dai-ch/T-beck-vue4#readme"
+  ]
 }
