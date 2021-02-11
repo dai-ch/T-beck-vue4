@@ -41,6 +41,8 @@ export default {
   name: 'SignUp',
   data() {
     return {
+      // created で初期化
+      db: null,
       displayName: '',
       mailAdress: '',
       password: '',
@@ -49,22 +51,30 @@ export default {
   components: {
     CopyRight,
   },
+  created: function() {
+    // dbインスタンスを初期化
+    this.db = firebase.firestore();
+  },
   methods: {
     signUp: function() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(
-          //this.displayName,
-          this.mailAdress,
-          this.password
-        )
-        .then((user) => {
-          alert('Create account: ', user.email);
-          //ログイン成功したら下記へ遷移
-          //this.$router.push('/users');
-        })
-        .catch((error) => {
-          alert(error.message);
+      //「users」というコレクションを取得する
+      let collection = this.db.collection('users');
+
+      collection
+        .add({
+          name: this.displayName,
+          mailAdress: this.mailAdress,
+          password: this.password,
+        })//保存成功時
+        .then(function(docRef) {
+          // 保存に成功した時
+          console.log('Document written with ID: ', docRef.id);
+          // 1件だけ取得する処理のためにIDを保存しておく
+          self.inputDocRef = docRef.id;
+        })//保存失敗時
+        .catch(function(error) {
+          // 保存に失敗した時
+          console.error('Error adding document: ', error);
         });
     },
   },
