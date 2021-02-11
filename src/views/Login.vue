@@ -3,35 +3,33 @@
     <img alt="Vue logo" src="../assets/logo.png" />
 
     <h1>ログイン画面</h1>
-    <form>
-      <table class="table">
-        <tr class="tr">
-          <td>
-            <label>メールアドレス</label
-            ><input type="text" placeholder="E-mail" v-model="mailAdress" />
-          </td>
-        </tr>
-        <tr class="tr">
-          <td>
-            <label>パスワード</label
-            ><input type="password" placeholder="Password" v-model="password" />
-          </td>
-        </tr>
-        <button class="btn" v-on:click="userSingIn">ログイン</button
-        ><br />
-        <router-link to="/signup" class="router"
-          >新規登録はこちらから</router-link
-        >
-      </table>
-    </form>
+    <table class="table">
+      <tr class="tr">
+        <td>
+          <label>メールアドレス</label
+          ><input type="text" placeholder="E-mail" v-model="mailAdress" />
+        </td>
+      </tr>
+      <tr class="tr">
+        <td>
+          <label>パスワード</label
+          ><input type="password" placeholder="Password" v-model="password" />
+        </td>
+      </tr>
+      <button class="btn" v-on:click="login">ログイン</button
+      ><br />
+      <router-link to="/signup" class="router"
+        >新規登録はこちらから</router-link
+      >
+    </table>
   </div>
   <CopyRight />
 </template>
 
 <script>
 // @ is an alias to /src
-//import HelloWorld from '@/components/HelloWorld.vue'
 import CopyRight from '@/components/CopyRight.vue';
+import firebase from 'firebase';
 
 export default {
   name: 'Login',
@@ -42,10 +40,24 @@ export default {
     };
   },
   components: {
-    // HelloWorld
     CopyRight,
   },
   methods: {
+    login: function() {
+      //firebaseの認証の記述、Promiseを利用
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.mailAdress, this.password)
+        .then(() => {
+          alert('Success!');
+          //ログイン成功したら下記へ遷移
+          this.$router.push('/');
+        })
+        .catch((err) => {
+          //alert('正しいパスワードかメールアドレスを入力してください。');
+          alert(err.message);
+        });
+    },
   },
 };
 </script>
