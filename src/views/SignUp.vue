@@ -59,7 +59,6 @@ export default {
     signUp: function() {
       //「users」というコレクションを取得する
       let collection = this.db.collection('users');
-
       collection
         .add({
           name: this.displayName,

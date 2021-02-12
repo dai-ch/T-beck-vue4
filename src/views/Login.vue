@@ -51,7 +51,7 @@ export default {
         .then(() => {
           alert('Success!');
           //ログイン成功したら下記へ遷移
-          this.$router.push('/');
+          this.$router.push('/users');
         })
         .catch((err) => {
           //alert('正しいパスワードかメールアドレスを入力してください。');
