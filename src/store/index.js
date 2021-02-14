@@ -10,6 +10,7 @@ export default createStore({
         password: '',
       },
     ],
+    usersList: ['dddd'],
   },
   mutations: {},
   actions: {
@@ -39,11 +40,26 @@ export default createStore({
         .then(function(docRef) {
           console.log('Document written with ID: ', docRef.id);
         })
-        .catch(function(error) {
-          console.error('Error adding document: ', error);
+        .catch(function(e) {
+          console.error('Error adding document: ', e);
         });
 
+      //console.log(state.usersList);
+      console.log(this.state.usersList);
 
+      //「users」コレクションの全データを取得し、storeに格納する
+      collection
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            //console.log(doc.id, ' => ', doc.data());
+            this.state.usersList.push(doc.data);
+            console.log(this.state.usersList);
+          });
+        })
+        .catch(function(e) {
+          console.error('Error adding document: ', e);
+        });
     },
   },
   modules: {},
