@@ -29,7 +29,6 @@
 <script>
 // @ is an alias to /src
 import CopyRight from '@/components/CopyRight.vue';
-import firebase from 'firebase';
 
 export default {
   name: 'Login',
@@ -43,20 +42,12 @@ export default {
     CopyRight,
   },
   methods: {
-    login: function() {
-      //firebaseの認証の記述、Promiseを利用
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.mailAdress, this.password)
-        .then(() => {
-          alert('Success!');
-          //ログイン成功したら下記へ遷移
-          this.$router.push('/users');
-        })
-        .catch((err) => {
-          //alert('正しいパスワードかメールアドレスを入力してください。');
-          alert(err.message);
-        });
+    login() {
+      this.$store.dispatch('login', {
+        // name: this.displayName,
+        // mailAdress: this.mailAdress,
+        // password: this.password,
+      });
     },
   },
 };

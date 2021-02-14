@@ -2,6 +2,7 @@
   <div id="nav">
   </div>
   <router-view/>
+  <CopyRight />
 </template>
 
 <style>

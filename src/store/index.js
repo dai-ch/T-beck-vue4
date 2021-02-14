@@ -1,5 +1,7 @@
 import { createStore } from 'vuex';
 import firebase from 'firebase';
+import CopyRight from '@/components/CopyRight.vue';
+
 
 export default createStore({
   state: {
@@ -12,9 +14,16 @@ export default createStore({
     ],
     usersList: ['dddd'],
   },
-  mutations: {},
+  mutations: {
+    usersData: function(state, usersData) {
+      usersData.forEach((dataItem) => {
+        state.usersList.push(dataItem);
+      });
+      console.log(state.usersList);
+    },
+  },
   actions: {
-    signUp(state, signUpData) {
+    signUp(context, signUpData) {
       //登録情報を各変数へ格納
       const createName = signUpData.name;
       const createMailAdress = signUpData.mailAdress;
@@ -31,6 +40,7 @@ export default createStore({
 
       //「users」コレクションを取得しfirestoreの指定したコレクションへ登録
       let collection = firebase.firestore().collection('users');
+
       collection
         .add({
           name: createName,
@@ -44,23 +54,34 @@ export default createStore({
           console.error('Error adding document: ', e);
         });
 
-      //stateの配列を変数に参照
-      let usersList = this.state.usersList;
-
-      //「users」コレクションの全データを取得し、storeに格納する
+      //「users」コレクションの全データを取得し、stateを変更するためmutationを経由させる
       collection
         .get()
-        .then(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-            usersList.push(doc.data());
-          });
-          //console.log(usersList);確認用
-          console.log('登録できました');
+        .then(function(usersData) {
+          context.commit('usersData', usersData);
         })
         .catch(function(e) {
           console.error('Error adding document: ', e);
         });
     },
+    login: function() {
+      //firebaseの認証の記述、Promiseを利用
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.mailAdress, this.password)
+        .then(() => {
+          alert('Success!');
+          //ログイン成功したら下記へ遷移
+          this.$router.push('/users');
+        })
+        .catch((err) => {
+          //alert('正しいパスワードかメールアドレスを入力してください。');
+          alert(err.message);
+        });
+    },
   },
   modules: {},
+  components: {
+    CopyRight,
+  },
 });
