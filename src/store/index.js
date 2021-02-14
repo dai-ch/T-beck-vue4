@@ -44,18 +44,18 @@ export default createStore({
           console.error('Error adding document: ', e);
         });
 
-      //console.log(state.usersList);
-      console.log(this.state.usersList);
+      //stateの配列を変数に参照
+      let usersList = this.state.usersList;
 
       //「users」コレクションの全データを取得し、storeに格納する
       collection
         .get()
         .then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            //console.log(doc.id, ' => ', doc.data());
-            this.state.usersList.push(doc.data);
-            console.log(this.state.usersList);
+            usersList.push(doc.data());
           });
+          //console.log(usersList);確認用
+          console.log('登録できました');
         })
         .catch(function(e) {
           console.error('Error adding document: ', e);
