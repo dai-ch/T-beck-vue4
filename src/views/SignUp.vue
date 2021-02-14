@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     signUp() {
-      this.$store.commit('signUp', {
+      this.$store.dispatch('signUp', {
         name: this.displayName,
         mailAdress: this.mailAdress,
         password: this.password,

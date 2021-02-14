@@ -3,42 +3,48 @@ import firebase from 'firebase';
 
 export default createStore({
   state: {
-    // created で初期化
-    db: null,
-    name: '',
-    mailAdress: '',
-    password: '',
+    users: [
+      {
+        name: '',
+        mailAdress: '',
+        password: '',
+      },
+    ],
   },
-  mutations: {
+  mutations: {},
+  actions: {
     signUp(state, signUpData) {
+      //登録情報を各変数へ格納
+      const createName = signUpData.name;
+      const createMailAdress = signUpData.mailAdress;
+      const createPassword = signUpData.password;
 
-      state.name = signUpData.name;
-      state.mailAdress = signUpData.mailAdress;
-      state.password = signUpData.password;
+      //認証用のデータ登録(Authentication)
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(createMailAdress, createPassword)
+        .then(alert('認証データ登録成功しました'))
+        .catch((e) => {
+          alert(e);
+        });
 
-      //firestoreのインスタンスを初期化
-       state.db = firebase.firestore();
-
-      //「users」というコレクションを取得する
-      let collection = state.db.collection('users');
-
+      //「users」コレクションを取得しfirestoreの指定したコレクションへ登録
+      let collection = firebase.firestore().collection('users');
       collection
         .add({
-          name: this.state.name,
-          mailAdress: this.state.mailAdress,
-          password: this.state.password,
-        })
+          name: createName,
+          mailAdress: createMailAdress,
+          password: createPassword,
+        }) //docRefは登録情報に関するオブジェクト。
         .then(function(docRef) {
           console.log('Document written with ID: ', docRef.id);
-          // 1件だけ取得する処理のためにIDを保存しておく
-          self.inputDocRef = docRef.id;
-        }) //保存失敗時
+        })
         .catch(function(error) {
-          // 保存に失敗した時
           console.error('Error adding document: ', error);
         });
+
+
     },
   },
-  actions: {},
   modules: {},
 });
