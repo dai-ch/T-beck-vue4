@@ -1,6 +1,7 @@
 import { createStore } from 'vuex';
 import firebase from 'firebase';
 import CopyRight from '@/components/CopyRight.vue';
+import router from '../router';
 
 export default createStore({
   state: {
@@ -77,7 +78,8 @@ export default createStore({
         .then(() => {
           alert('Success!');
           //ログイン成功したら下記へ遷移
-          this.$router.push('/users');
+          router.push('/users');
+
           //context.commit('loginData', loginData);
         })
         .catch((err) => {

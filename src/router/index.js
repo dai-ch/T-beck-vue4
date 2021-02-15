@@ -33,9 +33,7 @@ router.beforeEach((to, from, next) => {
     // もしされていないならば、ログインページにリダイレクトします。
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
-        next({
-          path: '/',
-        });
+        next();
       } else {
         next({
           path: '/users',
@@ -44,7 +42,7 @@ router.beforeEach((to, from, next) => {
       }
     });
   } else {
-    next(); // next() を常に呼び出すようにしてください!
+    next(); // next() はログインページ（現在表示されてるページにリダイレクト？）
   }
 });
 
