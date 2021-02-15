@@ -29,8 +29,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   if (requiresAuth) {
-    // このルートはログインされているかどうか認証が必要です。
-    // もしされていないならば、ログインページにリダイレクトします。
+    // ログインされているかどうか認証が必要
+    // もしされていないならば、ログインページにリダイレクト
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         next();
@@ -42,7 +42,8 @@ router.beforeEach((to, from, next) => {
       }
     });
   } else {
-    next(); // next() はログインページ（現在表示されてるページにリダイレクト？）
+    // next() がログインページ（現在表示されてるページへリダイレクトさせる機能？）
+    next();
   }
 });
 
