@@ -7,16 +7,17 @@
       <tr class="tr">
         <td>
           <label>メールアドレス</label
-          ><input type="text" placeholder="E-mail" v-model="mailAdress" />
+          ><input type="text" placeholder="E-mail" v-model="loginMailAdress" />
         </td>
       </tr>
       <tr class="tr">
         <td>
           <label>パスワード</label
-          ><input type="password" placeholder="Password" v-model="password" />
+          ><input type="password" placeholder="Password" v-model="loginPassword" />
         </td>
       </tr>
-      <button class="btn" v-on:click="login">ログイン</button
+      <button class="btn" v-on:click="login">
+        ログイン</button
       ><br />
       <router-link to="/signup" class="router"
         >新規登録はこちらから</router-link
@@ -34,8 +35,8 @@ export default {
   name: 'Login',
   data() {
     return {
-      mailAdress: '',
-      password: '',
+      loginMailAdress: '',
+      loginPassword: '',
     };
   },
   components: {
@@ -44,9 +45,8 @@ export default {
   methods: {
     login() {
       this.$store.dispatch('login', {
-        // name: this.displayName,
-        // mailAdress: this.mailAdress,
-        // password: this.password,
+        loginMailAdress: this.loginMailAdress,
+        loginPassword: this.loginPassword,
       });
     },
   },

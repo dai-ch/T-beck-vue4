@@ -1,8 +1,9 @@
+
 <template>
   <div class="users">
     <img alt="Vue logo" src="../assets/logo.png" />
     <div class="header">
-      <div class="heeder__comment">{{}}さんようこそ！！</div>
+      <div class="heeder__comment">{{userName}}さんようこそ！！</div>
       <div class="balance">
         残高：{{}} <span>  <router-link to="/" class="router"><button class="logoutBtn">ログアウト</button></router-link></span>
       </div>
@@ -53,8 +54,14 @@ import CopyRight from '@/components/CopyRight.vue';
 
 export default {
   name: 'Users',
+  data() {
+    return {
+    };
+  },
   components: {
     CopyRight,
+  },
+  methods: {
   },
 };
 </script>

@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import Login from '../views/Login.vue';
+import firebase from 'firebase';
 
 const routes = [
   {
@@ -10,20 +11,41 @@ const routes = [
   {
     path: '/signup',
     name: 'SignUp',
-    component: () =>
-      import('../views/SignUp.vue'),
+    component: () => import('../views/SignUp.vue'),
   },
   {
     path: '/users',
     name: 'Users',
-    component: () =>
-      import('../views/Users.vue'),
+    meta: { requiresAuth: true },
+    component: () => import('../views/Users.vue'),
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  if (requiresAuth) {
+    // このルートはログインされているかどうか認証が必要です。
+    // もしされていないならば、ログインページにリダイレクトします。
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        next({
+          path: '/',
+        });
+      } else {
+        next({
+          path: '/users',
+          query: { redirect: to.fullPath },
+        });
+      }
+    });
+  } else {
+    next(); // next() を常に呼び出すようにしてください!
+  }
+});
+
+export default router;
