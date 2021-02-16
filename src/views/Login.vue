@@ -6,22 +6,19 @@
     <table class="table">
       <tr class="tr">
         <td>
-          <label>メールアドレス</label
-          ><input type="text" placeholder="E-mail" v-model="loginMailAdress" />
+          <label>メールアドレス</label>
+          <input type="text" placeholder="E-mail" v-model="loginMailAdress" />
         </td>
       </tr>
       <tr class="tr">
         <td>
-          <label>パスワード</label
-          ><input type="password" placeholder="Password" v-model="loginPassword" />
+          <label>パスワード</label>
+          <input type="password" placeholder="Password" v-model="loginPassword" />
         </td>
       </tr>
       <button class="btn" v-on:click="login">
-        ログイン</button
-      ><br />
-      <router-link to="/signup" class="router"
-        >新規登録はこちらから</router-link
-      >
+        ログイン</button><br />
+      <router-link to="/signup" class="router">新規登録はこちらから</router-link>
     </table>
   </div>
   <CopyRight />

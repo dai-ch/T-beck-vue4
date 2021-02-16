@@ -26,23 +26,22 @@ const router = createRouter({
   routes,
 });
 
+//routerが実行される前に下記の中の処理が実行
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   if (requiresAuth) {
-    // ログインされているかどうか認証が必要
-    // もしされていないならば、ログインページにリダイレクト
+    //認証状態を取得
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         next();
       } else {
         next({
-          path: '/users',
-          query: { redirect: to.fullPath },
+          // 認証されていない場合、認証画面へ
+          path: '/',
         });
       }
     });
   } else {
-    // next() がログインページ（現在表示されてるページへリダイレクトさせる機能？）
     next();
   }
 });
