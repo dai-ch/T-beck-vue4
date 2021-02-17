@@ -1,25 +1,49 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import Login from '../views/Login.vue';
+import firebase from 'firebase';
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Login',
+    component: Login,
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
-]
+    path: '/signup',
+    name: 'SignUp',
+    component: () => import('../views/SignUp.vue'),
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    meta: { requiresAuth: true },
+    component: () => import('../views/Users.vue'),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+//routerが実行される前に下記の中の処理が実行
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  if (requiresAuth) {
+    //認証状態を取得
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        next();
+      } else {
+        next({
+          // 認証されていない場合、認証画面へ
+          path: '/',
+        });
+      }
+    });
+  } else {
+    next();
+  }
+});
+
+export default router;
