@@ -3,9 +3,10 @@
   <div class="users">
     <img alt="Vue logo" src="../assets/logo.png" />
     <div class="header">
-      <div class="heeder__comment">{{userName}}さんようこそ！！</div>
+      <div class="heeder__comment">{{loginUserName}}さんようこそ！！</div>
       <div class="balance">
-        残高：{{}} <span>  <router-link to="/" class="router"><button class="logoutBtn">ログアウト</button></router-link></span>
+        残高：{{
+deposit}} <span>  <router-link to="/" class="router"><button class="logoutBtn">ログアウト</button></router-link></span>
       </div>
     </div>
     <h1>ユーザー一覧</h1>
@@ -19,6 +20,35 @@
   </div>
   <CopyRight />
 </template>
+
+<script>
+import CopyRight from '@/components/CopyRight.vue';
+
+export default {
+  name: 'Users',
+  data() {
+    return {
+    };
+  },
+  computed:{
+    loginUserName(){
+      return  this.$store.getters.loginUsername;
+    },
+    deposit(){
+      return  this.$store.getters.deposit;
+    }
+  },
+  methods: {
+  },
+  updated(){
+    this.$store.commit('loginUser');
+  },
+  components: {
+     CopyRight,
+  },
+};
+</script>
+
 
 <style scoped>
 .header{
@@ -49,19 +79,3 @@
 }
 </style>
 
-<script>
-import CopyRight from '@/components/CopyRight.vue';
-
-export default {
-  name: 'Users',
-  data() {
-    return {
-    };
-  },
-  components: {
-    CopyRight,
-  },
-  methods: {
-  },
-};
-</script>

@@ -10,9 +10,24 @@ export default createStore({
         name: '',
         mailAdress: '',
         password: '',
+        deposit: '',
       },
     ],
     usersList: [],
+    loginUser: {
+      name: '',
+      mailAdress: '',
+      password: '',
+      deposit: '',
+    },
+  },
+  getters: {
+    loginUsername(state) {
+      return state.loginUser.name;
+    },
+    depositBalance(state) {
+      return state.loginUser.deposit;
+    },
   },
   mutations: {
     usersData: function(state, usersData) {
@@ -21,9 +36,23 @@ export default createStore({
       });
       console.log(state.usersList);
     },
-    // loginData: function(state, loginData) {
-    //   console.log(loginData);
-    // },
+    loginUser: function(state) {
+      //ログイン状態を管理(onAuthStateChanged)
+      firebase.auth().onAuthStateChanged(function(user) {
+        console.log('表示されればここまで遷移している1');
+        if (user) {
+          console.log('表示されればここまで遷移している2');
+          console.log(user);
+          state.loginUser.name = user.name;
+          state.loginUser.mailAdress = user.mailAdress;
+          state.loginUser.password = user.password;
+          state.loginUser.deposit = user.deposit;
+        } else {
+          console.log(state);
+          //console.log(user);
+        }
+      });
+    },
   },
   actions: {
     signUp(context, signUpData) {
@@ -31,6 +60,7 @@ export default createStore({
       const createName = signUpData.name;
       const createMailAdress = signUpData.mailAdress;
       const createPassword = signUpData.password;
+      const createDeposit = signUpData.deposit;
 
       //認証用のデータ登録(Authentication)
       firebase
@@ -49,6 +79,7 @@ export default createStore({
           name: createName,
           mailAdress: createMailAdress,
           password: createPassword,
+          deposit: createDeposit,
         }) //docRefは登録情報に関するオブジェクト。
         .then(function(docRef) {
           console.log('Document written with ID: ', docRef.id);
@@ -79,15 +110,11 @@ export default createStore({
           alert('Success!');
           //ログイン成功したら下記へ遷移
           router.push('/users');
-
-          //context.commit('loginData', loginData);
         })
         .catch((err) => {
           alert(err.message);
         });
     },
-
-
   },
   modules: {},
   components: {

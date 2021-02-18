@@ -42,6 +42,7 @@ export default {
       displayName: '',
       mailAdress: '',
       password: '',
+      deposit: 0,
     };
   },
   components: {
@@ -53,6 +54,7 @@ export default {
         name: this.displayName,
         mailAdress: this.mailAdress,
         password: this.password,
+        deposit: this.deposit,
       });
     },
   },
