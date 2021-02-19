@@ -5,8 +5,7 @@
     <div class="header">
       <div class="heeder__comment">{{loginUserName}}さんようこそ！！</div>
       <div class="balance">
-        残高：{{
-deposit}} <span>  <router-link to="/" class="router"><button class="logoutBtn">ログアウト</button></router-link></span>
+        残高：{{loginUserDeposit}} <span>  <router-link to="/" class="router"><button class="logoutBtn">ログアウト</button></router-link></span>
       </div>
     </div>
     <h1>ユーザー一覧</h1>
@@ -32,15 +31,15 @@ export default {
   },
   computed:{
     loginUserName(){
-      return  this.$store.getters.loginUsername;
+      return this.$store.getters.loginUsername;
     },
-    deposit(){
-      return  this.$store.getters.deposit;
+    loginUserDeposit(){
+      return  this.$store.getters.depositBalance;
     }
   },
   methods: {
   },
-  updated(){
+  mounted(){
     this.$store.commit('loginUser');
   },
   components: {

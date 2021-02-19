@@ -23,28 +23,31 @@ export default createStore({
   },
   getters: {
     loginUsername(state) {
+      console.log(state.loginUser.mailAdress);
       return state.loginUser.name;
     },
     depositBalance(state) {
+      console.log(state.loginUser.mailAdress);
       return state.loginUser.deposit;
     },
   },
   mutations: {
+    //firestoreのusersテーブルに保存しているデータをstateに格納
     usersData: function(state, usersData) {
       usersData.forEach((dataItem) => {
         state.usersList.push(dataItem);
       });
-      console.log(state.usersList);
+      // console.log(state.usersList);
     },
-    loginUser: function(state) {
+
+    //Users.vueに画面先したら実行
+    loginUser: function (state) {
       //ログイン状態を管理(onAuthStateChanged)
       firebase.auth().onAuthStateChanged(function(user) {
-        console.log('表示されればここまで遷移している1');
         if (user) {
-          console.log('表示されればここまで遷移している2');
-          console.log(user);
+           console.log(user.data);
           state.loginUser.name = user.name;
-          state.loginUser.mailAdress = user.mailAdress;
+          state.loginUser.mailAdress = user.email;
           state.loginUser.password = user.password;
           state.loginUser.deposit = user.deposit;
         } else {
