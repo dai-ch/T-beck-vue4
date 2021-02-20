@@ -5,16 +5,18 @@ import router from '../router';
 
 export default createStore({
   state: {
-    users: [
-      {
-        name: '',
-        mailAdress: '',
-        password: '',
-        deposit: '',
-      },
-    ],
+    // users: [
+    //   {
+    //     uid:'',
+    //     name: '',
+    //     mailAdress: '',
+    //     password: '',
+    //     deposit: '',
+    //   },
+    // ],
     usersList: [],
     loginUser: {
+      id: '',
       name: '',
       mailAdress: '',
       password: '',
@@ -23,37 +25,44 @@ export default createStore({
   },
   getters: {
     loginUsername(state) {
-      console.log(state.loginUser.mailAdress);
       return state.loginUser.name;
     },
     depositBalance(state) {
-      console.log(state.loginUser.mailAdress);
       return state.loginUser.deposit;
     },
   },
   mutations: {
+    //Users.vueに画面遷移したら実行
+    dashboard(state) {
+      //ログイン状態を管理(onAuthStateChanged)
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          state.loginUser.id = user.uid;
+          state.loginUser.name = user.displayName;
+          state.loginUser.mailAdress = user.email;
+        } else {
+          console.log(state);
+        }
+
+        //furestireからdepositを取得する処理
+        const depositData = firebase.firestore().collection('users');
+        depositData
+          .where('id', '==', state.loginUser.id)
+          .get()
+          .then((userData) => {
+            userData.forEach((data) => {
+              state.loginUser.deposit = data.data().deposit;
+            });
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      });
+    },
     //firestoreのusersテーブルに保存しているデータをstateに格納
     usersData: function(state, usersData) {
       usersData.forEach((dataItem) => {
         state.usersList.push(dataItem);
-      });
-      // console.log(state.usersList);
-    },
-
-    //Users.vueに画面先したら実行
-    loginUser(state) {
-      //ログイン状態を管理(onAuthStateChanged)
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          console.log(user);
-          state.loginUser.name = user.displayName;
-          state.loginUser.mailAdress = user.email;
-          state.loginUser.password = user.password;
-          state.loginUser.deposit = user.testDeposit;
-        } else {
-          console.log(state);
-          //console.log(user);
-        }
       });
     },
   },
@@ -73,41 +82,45 @@ export default createStore({
           //user.updateProfile({...})でuserのプロフィールを更新
           result.user.updateProfile({
             displayName: createName,
-            testDeposit: createDeposit
           });
+          addFirestoreUser(result.user.uid);
           alert('認証データ登録成功しました');
         })
         .catch((e) => {
           alert(e);
         });
 
-      //「users」コレクションを取得しfirestoreの指定したコレクションへ登録
-      let collection = firebase.firestore().collection('users');
+      //firestoreへ新規登録処理
+      const addFirestoreUser = function(addUserId) {
+        //「users」コレクションを取得しusersコレクションへ登録
+        let collection = firebase.firestore().collection('users');
+        collection
+          .add({
+            id: addUserId,
+            name: createName,
+            mailAdress: createMailAdress,
+            password: createPassword,
+            deposit: createDeposit,
+          }) //[docRef]は登録情報に関するオブジェクト。
+          .then(function(docRef) {
+            alert('Document written with ID: ', docRef.id);
+          })
+          .catch(function(e) {
+            console.error('Error adding document: ', e);
+          });
 
-      collection
-        .add({
-          name: createName,
-          mailAdress: createMailAdress,
-          password: createPassword,
-          deposit: createDeposit,
-        }) //docRefは登録情報に関するオブジェクト。
-        .then(function(docRef) {
-          console.log('Document written with ID: ', docRef.id);
-        })
-        .catch(function(e) {
-          console.error('Error adding document: ', e);
-        });
-
-      //「users」コレクションの全データを取得し、stateを変更するためmutationを経由させる
-      collection
-        .get()
-        .then(function(usersData) {
-          context.commit('usersData', usersData);
-        })
-        .catch(function(e) {
-          console.error('Error adding document: ', e);
-        });
+        //「users」コレクションの全データを取得し、stateを変更するためmutationを経由させる
+        collection
+          .get()
+          .then(function(usersData) {
+            context.commit('usersData', usersData);
+          })
+          .catch(function(e) {
+            console.error('Error adding document: ', e);
+          });
+      };
     },
+
     login: function(context, loginData) {
       //firebaseの認証の記述、Promiseを利用
       firebase
@@ -118,7 +131,6 @@ export default createStore({
         )
         .then(() => {
           alert('Success!');
-          //ログイン成功したら下記へ遷移
           router.push('/users');
         })
         .catch((err) => {

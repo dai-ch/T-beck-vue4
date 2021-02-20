@@ -35,12 +35,12 @@ export default {
     },
     loginUserDeposit(){
       return  this.$store.getters.depositBalance;
-    }
+    },
   },
   methods: {
   },
   mounted(){
-    this.$store.commit('loginUser');
+    this.$store.commit('dashboard');
   },
   components: {
      CopyRight,

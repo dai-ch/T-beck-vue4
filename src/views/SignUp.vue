@@ -39,6 +39,7 @@ export default {
   name: 'SignUp',
   data() {
     return {
+      // uid:'',
       displayName: '',
       mailAdress: '',
       password: '',
@@ -51,6 +52,7 @@ export default {
   methods: {
     signUp() {
       this.$store.dispatch('signUp', {
+        // uid: this.uid,
         name: this.displayName,
         mailAdress: this.mailAdress,
         password: this.password,
