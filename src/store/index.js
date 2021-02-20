@@ -41,15 +41,15 @@ export default createStore({
     },
 
     //Users.vueに画面先したら実行
-    loginUser: function (state) {
+    loginUser(state) {
       //ログイン状態を管理(onAuthStateChanged)
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-           console.log(user.data);
-          state.loginUser.name = user.name;
+          console.log(user);
+          state.loginUser.name = user.displayName;
           state.loginUser.mailAdress = user.email;
           state.loginUser.password = user.password;
-          state.loginUser.deposit = user.deposit;
+          state.loginUser.deposit = user.testDeposit;
         } else {
           console.log(state);
           //console.log(user);
@@ -69,7 +69,14 @@ export default createStore({
       firebase
         .auth()
         .createUserWithEmailAndPassword(createMailAdress, createPassword)
-        .then(alert('認証データ登録成功しました'))
+        .then((result) => {
+          //user.updateProfile({...})でuserのプロフィールを更新
+          result.user.updateProfile({
+            displayName: createName,
+            testDeposit: createDeposit
+          });
+          alert('認証データ登録成功しました');
+        })
         .catch((e) => {
           alert(e);
         });
