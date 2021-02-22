@@ -67,6 +67,7 @@ export default createStore({
     },
   },
   actions: {
+    //ユーザー新規登録
     signUp(context, signUpData) {
       //登録情報を各変数へ格納
       const createName = signUpData.name;
@@ -132,6 +133,19 @@ export default createStore({
         .then(() => {
           alert('Success!');
           router.push('/users');
+        })
+        .catch((err) => {
+          alert(err.message);
+        });
+    },
+    logOut(context) {//eslint-disable-line
+      //eslintの文法チェックを無効にする記述を1つ上のコメントアウトで実装
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          alert('ログアウトしました');
+          router.push('/');
         })
         .catch((err) => {
           alert(err.message);
