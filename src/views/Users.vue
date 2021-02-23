@@ -10,12 +10,23 @@
     </div>
     <h1>ユーザー一覧</h1>
     <table>
-      <th><td>ユーザ名</td></th>
-      <tr>v-forを使用予定</tr>
+      <li class="table__username">ユーザ名</li>
+      <ul  v-for="user in usersList" v-bind:key="user">
+        <li class="usersListData">
+          <span>{{user.name}}</span>
+        <span class="userList_btn">
+          <button class="userBtn" v-on:click="showDeposit">walletを見る</button>
+          <button class="userBtn">送る</button>
+        </span>
+        </li>
+        <!-- モーダルウインドウ -->
+        <div id="showDeposit">
+          <p>{{user.name}}さんの残高</p>
+          <p>{{user.deposit}}</p>
+        </div>
+      </ul>
     </table>
-   <table>
 
-   </table>
   </div>
   <CopyRight />
 </template>
@@ -36,10 +47,16 @@ export default {
     userDeposit(){
       return  this.$store.getters.depositBalance;
     },
+    usersList(){
+      return  this.$store.getters.usersList;
+    },
   },
   methods: {
     logout(){
       this.$store.dispatch('logOut');
+    },
+    showDeposit(){
+
     }
   },
   mounted(){
@@ -79,5 +96,41 @@ export default {
   text-decoration: none;
   color: skyblue;
 }
+
+.usersListData{
+  list-style:none;
+  display: flex;
+  justify-content:space-between;
+}
+
+table{
+ margin : 0 auto;
+}
+
+ul{
+  width:100%;
+  display: inline-block;
+  padding:0;
+  margin: 5px auto 0;
+}
+
+.userBtn{
+  margin-right: 5px;
+  background-color:skyblue;
+  color: #fff;
+  border: 1px solid skyblue;
+  border-radius: 3px;
+}
+
+.table__username{
+  list-style: none;
+  font-weight: bold;
+  font-size: 20px;
+  text-align:left;
+  position: relative;
+  right:10px;
+}
+
+
 </style>
 

@@ -30,6 +30,9 @@ export default createStore({
     depositBalance(state) {
       return state.loginUser.deposit;
     },
+    usersList(state) {
+      return state.usersList;
+    },
   },
   mutations: {
     //Users.vueに画面遷移したら実行
@@ -46,6 +49,7 @@ export default createStore({
 
         //furestireからdepositを取得する処理
         const depositData = firebase.firestore().collection('users');
+        //ログインユーザー情報を取得
         depositData
           .where('id', '==', state.loginUser.id)
           .get()
@@ -57,13 +61,27 @@ export default createStore({
           .catch((e) => {
             console.log(e);
           });
+
+        //ログインユーザー以外のデータを取得
+        depositData
+          .where('id', '!=', state.loginUser.id)
+          .get()
+          .then((usersListData) => {
+            usersListData.forEach((data) => {
+              state.usersList.push(data.data());
+            });
+          })
+          .catch((e) => {
+            console.log(e);
+          });
       });
     },
-    //firestoreのusersテーブルに保存しているデータをstateに格納
-    usersData: function(state, usersData) {
-      usersData.forEach((dataItem) => {
-        state.usersList.push(dataItem);
-      });
+    //usersList内のデータを削除
+    clearUsersList(state) {
+      console.log(state.usersList.length);
+      console.log('ssssssssss');
+      state.usersList.splice(0,state.usersList.length);
+      console.log(state.usersList);
     },
   },
   actions: {
@@ -132,6 +150,7 @@ export default createStore({
         )
         .then(() => {
           alert('Success!');
+          //firestoreに格納されたユーザーデータ全て取得
           router.push('/users');
         })
         .catch((err) => {
@@ -144,7 +163,7 @@ export default createStore({
         .auth()
         .signOut()
         .then(() => {
-          alert('ログアウトしました');
+          context.commit('clearUsersList');
           router.push('/');
         })
         .catch((err) => {
