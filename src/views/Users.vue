@@ -3,9 +3,9 @@
   <div class="users">
     <img alt="Vue logo" src="../assets/logo.png" />
     <div class="header">
-      <div class="heeder__comment">{{loginUserName}}さんようこそ！！</div>
+      <div class="heeder__comment">{{userName}}さんようこそ！！</div>
       <div class="balance">
-        残高：{{loginUserDeposit}} <span>  <router-link to="/" class="router"><button class="logoutBtn">ログアウト</button></router-link></span>
+        残高：{{userDeposit}} <span>  <button class="logoutBtn" v-on:click="logout">ログアウト</button></span>
       </div>
     </div>
     <h1>ユーザー一覧</h1>
@@ -30,14 +30,17 @@ export default {
     };
   },
   computed:{
-    loginUserName(){
+    userName(){
       return this.$store.getters.loginUsername;
     },
-    loginUserDeposit(){
+    userDeposit(){
       return  this.$store.getters.depositBalance;
     },
   },
   methods: {
+    logout(){
+      this.$store.dispatch('logOut');
+    }
   },
   mounted(){
     this.$store.commit('dashboard');
