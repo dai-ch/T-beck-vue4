@@ -5,15 +5,6 @@ import router from '../router';
 
 export default createStore({
   state: {
-    // users: [
-    //   {
-    //     uid:'',
-    //     name: '',
-    //     mailAdress: '',
-    //     password: '',
-    //     deposit: '',
-    //   },
-    // ],
     usersList: [],
     loginUser: {
       id: '',
@@ -22,6 +13,15 @@ export default createStore({
       password: '',
       deposit: '',
     },
+    modalUsersData: [
+      {
+        id: '',
+        name: '',
+        mailAdress: '',
+        password: '',
+        deposit: '',
+      },
+    ],
   },
   getters: {
     loginUsername(state) {
@@ -32,6 +32,9 @@ export default createStore({
     },
     usersList(state) {
       return state.usersList;
+    },
+    modalUsersData(state) {
+      return state.modalUsersData;
     },
   },
   mutations: {
@@ -80,8 +83,11 @@ export default createStore({
     clearUsersList(state) {
       console.log(state.usersList.length);
       console.log('ssssssssss');
-      state.usersList.splice(0,state.usersList.length);
+      state.usersList.splice(0, state.usersList.length);
       console.log(state.usersList);
+    },
+    modalWindowData(state, data) {
+      state.modalUsersData = data.userData;
     },
   },
   actions: {
@@ -157,14 +163,15 @@ export default createStore({
           alert(err.message);
         });
     },
-    logOut(context) {//eslint-disable-line
+    logOut(context) {
+      //eslint-disable-line
       //eslintの文法チェックを無効にする記述を1つ上のコメントアウトで実装
       firebase
         .auth()
         .signOut()
         .then(() => {
           context.commit('clearUsersList');
-          router.go({ path:'/'});
+          router.go({ path: '/' });
           //router.push('/');
         })
         .catch((err) => {

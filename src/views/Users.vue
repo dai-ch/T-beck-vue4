@@ -19,29 +19,29 @@
         <li class="usersListData">
           <span>{{ user.name }}</span>
           <span class="userList_btn">
-            <button id="userBtn" class="userBtn" v-on:click="showDeposit">
+            <button id="userBtn" class="userBtn" v-on:click="showDeposit(user)">
               walletを見る
             </button>
             <button class="userBtn">送る</button>
           </span>
         </li>
-
-        <!-- モーダルウインドウ -->
-        <transition name="fade">
-          <div id="overlay" v-show="showContent">
-            <div id="content">
-              <p class="content__userName">{{ user.name }}さんの残高</p>
-              <p class="content__userDepsit">{{ user.deposit }}</p>
-              <div class="content__btn__container">
-                <button class="content__btn" v-on:click="closeDeposit">
-                  close
-                </button>
-              </div>
+      </ul>
+      <!-- モーダルウインドウ -->
+      <transition name="fade">
+        <div id="overlay" v-show="showContent">
+          <div id="content">
+            <p class="content__userName">
+              {{ getModalUserData.name }}さんの残高
+            </p>
+            <p class="content__userDepsit">{{ getModalUserData.deposit }}</p>
+            <div class="content__btn__container">
+              <button class="content__btn" v-on:click="closeDeposit">
+                close
+              </button>
             </div>
           </div>
-        </transition>
-        <!-- モーダルウインドウ終わり -->
-      </ul>
+        </div>
+      </transition>
     </table>
   </div>
   <CopyRight />
@@ -67,12 +67,16 @@ export default {
     usersList() {
       return this.$store.getters.usersList;
     },
+    getModalUserData() {
+      return this.$store.getters.modalUsersData;
+    },
   },
   methods: {
     logout() {
       this.$store.dispatch('logOut');
     },
-    showDeposit() {
+    showDeposit(user) {
+      this.$store.commit('modalWindowData', { userData: user });
       this.showContent = true;
     },
     closeDeposit() {
@@ -139,7 +143,13 @@ ul {
   color: #fff;
   border: 1px solid skyblue;
   border-radius: 3px;
+  outline:none;
 }
+
+.userBtn:hover {
+  background-color: rgb(78, 199, 247);
+}
+
 
 .table__username {
   list-style: none;
@@ -158,7 +168,7 @@ ul {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.2);
 
   /*画面の中央に要素を表示させる設定*/
   display: flex;
@@ -195,7 +205,13 @@ ul {
   border-radius: 3px;
   border: 1px solid rgb(240, 93, 93);
   background-color: rgb(240, 93, 93);
+  outline:none;
 }
+
+.content__btn:hover{
+  background-color: rgb(248, 23, 23);;
+}
+
 
 /* /////トランジション設定/////// */
 .fade-enter-active,
