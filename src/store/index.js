@@ -164,8 +164,6 @@ export default createStore({
         });
     },
     logOut(context) {
-      //eslint-disable-line
-      //eslintの文法チェックを無効にする記述を1つ上のコメントアウトで実装
       firebase
         .auth()
         .signOut()

@@ -8,8 +8,8 @@
         <span>
           <button class="logoutBtn" v-on:click="logout">
             ログアウト
-          </button></span
-        >
+          </button>
+        </span>
       </div>
     </div>
     <h1>ユーザー一覧</h1>
