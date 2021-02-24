@@ -164,7 +164,8 @@ export default createStore({
         .signOut()
         .then(() => {
           context.commit('clearUsersList');
-          router.push('/');
+          router.go({ path:'/'});
+          //router.push('/');
         })
         .catch((err) => {
           alert(err.message);
