@@ -84,7 +84,7 @@ export default {
     },
   },
   mounted() {
-    this.$store.commit('dashboard');
+    this.$store.dispatch('dashboard');
   },
   components: {
     CopyRight,

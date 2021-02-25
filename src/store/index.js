@@ -38,56 +38,21 @@ export default createStore({
     },
   },
   mutations: {
-    //Users.vueに画面遷移したら実行
-    dashboard(state) {
-      //ログイン状態を管理(onAuthStateChanged)
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          state.loginUser.id = user.uid;
-          state.loginUser.name = user.displayName;
-          state.loginUser.mailAdress = user.email;
-        } else {
-          console.log(state);
-        }
-
-        //furestireからdepositを取得する処理
-        const depositData = firebase.firestore().collection('users');
-        //ログインユーザー情報を取得
-        depositData
-          .where('id', '==', state.loginUser.id)
-          .get()
-          .then((userData) => {
-            userData.forEach((data) => {
-              state.loginUser.deposit = data.data().deposit;
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-
-        //ログインユーザー以外のデータを取得
-        depositData
-          .where('id', '!=', state.loginUser.id)
-          .get()
-          .then((usersListData) => {
-            usersListData.forEach((data) => {
-              state.usersList.push(data.data());
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      });
-    },
-    //usersList内のデータを削除
-    clearUsersList(state) {
-      console.log(state.usersList.length);
-      console.log('ssssssssss');
-      state.usersList.splice(0, state.usersList.length);
-      console.log(state.usersList);
-    },
     modalWindowData(state, data) {
       state.modalUsersData = data.userData;
+    },
+    loginUserData(state, user) {
+        state.loginUser.id = user.uid;
+        state.loginUser.name = user.displayName;
+        state.loginUser.mailAdress = user.email;
+    },
+    loginUserDeposit(state, depositData) {
+      state.loginUser.deposit = depositData.data().deposit;
+    },
+    usersListData(state, usersListData) {
+      usersListData.forEach((data) => {
+        state.usersList.push(data.data());
+      });
     },
   },
   actions: {
@@ -175,6 +140,43 @@ export default createStore({
         .catch((err) => {
           alert(err.message);
         });
+    },
+    //Users.vueに画面遷移したら実行
+    dashboard(context) {
+      //ログイン状態を管理(onAuthStateChanged)
+      firebase.auth().onAuthStateChanged(function(loginUserData) {
+        //ログインユーザーのデータをstateに格納
+        context.commit('loginUserData', loginUserData);
+
+        //furestireからログインユーザーのdepositを取得
+        const depositData = firebase.firestore().collection('users');
+
+        depositData
+          .where('id', '==', loginUserData.uid)
+          .get()
+          .then((userData) => {
+            userData.forEach((user) => {
+              //ログインユーザーのdepositを取得する処理
+              //dataはログインユーザーのオブジェクトのみ
+              context.commit('loginUserDeposit', user);
+            });
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+
+        //ログインユーザー以外のデータを取得
+        depositData
+          .where('id', '!=', loginUserData.uid)
+          .get()
+          .then((usersListData) => {
+            //ログインユーザー以外のデータはmutasionを経由してstateに格納
+            context.commit('usersListData', usersListData);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      });
     },
   },
   modules: {},
