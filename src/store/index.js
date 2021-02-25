@@ -5,15 +5,6 @@ import router from '../router';
 
 export default createStore({
   state: {
-    // users: [
-    //   {
-    //     uid:'',
-    //     name: '',
-    //     mailAdress: '',
-    //     password: '',
-    //     deposit: '',
-    //   },
-    // ],
     usersList: [],
     loginUser: {
       id: '',
@@ -22,6 +13,15 @@ export default createStore({
       password: '',
       deposit: '',
     },
+    modalUsersData: [
+      {
+        id: '',
+        name: '',
+        mailAdress: '',
+        password: '',
+        deposit: '',
+      },
+    ],
   },
   getters: {
     loginUsername(state) {
@@ -30,39 +30,28 @@ export default createStore({
     depositBalance(state) {
       return state.loginUser.deposit;
     },
+    usersList(state) {
+      return state.usersList;
+    },
+    modalUsersData(state) {
+      return state.modalUsersData;
+    },
   },
   mutations: {
-    //Users.vueに画面遷移したら実行
-    dashboard(state) {
-      //ログイン状態を管理(onAuthStateChanged)
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          state.loginUser.id = user.uid;
-          state.loginUser.name = user.displayName;
-          state.loginUser.mailAdress = user.email;
-        } else {
-          console.log(state);
-        }
-
-        //furestireからdepositを取得する処理
-        const depositData = firebase.firestore().collection('users');
-        depositData
-          .where('id', '==', state.loginUser.id)
-          .get()
-          .then((userData) => {
-            userData.forEach((data) => {
-              state.loginUser.deposit = data.data().deposit;
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      });
+    modalWindowData(state, data) {
+      state.modalUsersData = data.userData;
     },
-    //firestoreのusersテーブルに保存しているデータをstateに格納
-    usersData: function(state, usersData) {
-      usersData.forEach((dataItem) => {
-        state.usersList.push(dataItem);
+    loginUserData(state, user) {
+        state.loginUser.id = user.uid;
+        state.loginUser.name = user.displayName;
+        state.loginUser.mailAdress = user.email;
+    },
+    loginUserDeposit(state, depositData) {
+      state.loginUser.deposit = depositData.data().deposit;
+    },
+    usersListData(state, usersListData) {
+      usersListData.forEach((data) => {
+        state.usersList.push(data.data());
       });
     },
   },
@@ -132,24 +121,62 @@ export default createStore({
         )
         .then(() => {
           alert('Success!');
+          //firestoreに格納されたユーザーデータ全て取得
           router.push('/users');
         })
         .catch((err) => {
           alert(err.message);
         });
     },
-    logOut(context) {//eslint-disable-line
-      //eslintの文法チェックを無効にする記述を1つ上のコメントアウトで実装
+    logOut(context) {
       firebase
         .auth()
         .signOut()
         .then(() => {
-          alert('ログアウトしました');
-          router.push('/');
+          context.commit('clearUsersList');
+          router.go({ path: '/' });
+          //router.push('/');
         })
         .catch((err) => {
           alert(err.message);
         });
+    },
+    //Users.vueに画面遷移したら実行
+    dashboard(context) {
+      //ログイン状態を管理(onAuthStateChanged)
+      firebase.auth().onAuthStateChanged(function(loginUserData) {
+        //ログインユーザーのデータをstateに格納
+        context.commit('loginUserData', loginUserData);
+
+        //furestireからログインユーザーのdepositを取得
+        const depositData = firebase.firestore().collection('users');
+
+        depositData
+          .where('id', '==', loginUserData.uid)
+          .get()
+          .then((userData) => {
+            userData.forEach((user) => {
+              //ログインユーザーのdepositを取得する処理
+              //dataはログインユーザーのオブジェクトのみ
+              context.commit('loginUserDeposit', user);
+            });
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+
+        //ログインユーザー以外のデータを取得
+        depositData
+          .where('id', '!=', loginUserData.uid)
+          .get()
+          .then((usersListData) => {
+            //ログインユーザー以外のデータはmutasionを経由してstateに格納
+            context.commit('usersListData', usersListData);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      });
     },
   },
   modules: {},
