@@ -42,12 +42,13 @@ export default createStore({
       state.modalUsersData = data.userData;
     },
     loginUserData(state, user) {
-        state.loginUser.id = user.uid;
-        state.loginUser.name = user.displayName;
-        state.loginUser.mailAdress = user.email;
+      state.loginUser.id = user.uid;
+      //state.loginUser.name = user.displayName;
+      state.loginUser.mailAdress = user.email;
     },
     loginUserDeposit(state, depositData) {
       state.loginUser.deposit = depositData.data().deposit;
+      state.loginUser.name = depositData.data().name;
     },
     usersListData(state, usersListData) {
       usersListData.forEach((data) => {
@@ -177,6 +178,11 @@ export default createStore({
             console.log(e);
           });
       });
+    },
+    sendDepsitData(context, sendDepsitData) {
+      console.log(sendDepsitData.userDeposit);
+      console.log(sendDepsitData.receiveUserData);
+      console.log(sendDepsitData.sendMoney);
     },
   },
   modules: {},
