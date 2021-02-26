@@ -24,6 +24,7 @@ export default createStore({
         doc_id: '',
       },
     ],
+    reloadTrigger: '',
   },
   getters: {
     loginUsername(state) {
@@ -45,18 +46,23 @@ export default createStore({
     },
     loginUserData(state, user) {
       state.loginUser.id = user.uid;
-      //state.loginUser.name = user.displayName;
       state.loginUser.mailAdress = user.email;
     },
     loginUserDeposit(state, depositData) {
       state.loginUser.deposit = depositData.data().deposit;
       state.loginUser.name = depositData.data().name;
+      state.loginUser.doc_id = depositData.data().doc_id;
     },
     usersListData(state, usersListData) {
       usersListData.forEach((data) => {
         state.usersList.push(data.data());
       });
     },
+    // reload(state) {
+    //   if (state.reload) {
+    //     //location.reload();
+    //   }
+    // },
   },
   actions: {
     //ユーザー新規登録
@@ -85,33 +91,49 @@ export default createStore({
 
       //firestoreへ新規登録処理
       const addFirestoreUser = function(addUserId) {
+        //ドキュメントIDを管理するための関数
+        const createDocmentId = () => {
+          // 生成する文字列の長さ
+          const l = 30;
+          // 生成する文字列に含める文字セット
+          const str = 'abcdefghijklmnopqrstuvwxyz0123456789';
+          const srtlength = str.length;
+          let doc_id = '';
+          for (let i = 0; i < l; i++) {
+            doc_id += str[Math.floor(Math.random() * srtlength)];
+          }
+          return doc_id;
+        };
+        const doc_id = createDocmentId();
+
         //「users」コレクションを取得しusersコレクションへ登録
         let collection = firebase.firestore().collection('users');
 
+        //createDocmentIdが既存のdoc_idと重複していなければ登録処理実行
         collection
-          .add({
-            id: addUserId,
-            name: createName,
-            mailAdress: createMailAdress,
-            password: createPassword,
-            deposit: createDeposit,
-            //doc_id: docRef.id,
-          }) //[docRef]は登録情報に関するオブジェクト。
-          .then(function(docRef) {
-            console.log('Document written with ID: ', docRef.id);
-          })
-          .catch(function(e) {
-            console.error('Error adding document: ', e);
-          });
-
-        //「users」コレクションの全データを取得し、stateを変更するためmutationを経由させる
-        collection
+          .where('doc_id', '!=', doc_id)
           .get()
-          .then(function(usersData) {
-            context.commit('usersData', usersData);
+          .then(() => {
+            collection
+              .doc(doc_id)
+              .set({
+                id: addUserId,
+                name: createName,
+                mailAdress: createMailAdress,
+                password: createPassword,
+                deposit: createDeposit,
+                doc_id: doc_id,
+              })
+              .then(function() {
+                console.log('登録OKです');
+              })
+              .catch(function(e) {
+                console.error('Error adding document: ', e);
+              });
           })
-          .catch(function(e) {
-            console.error('Error adding document: ', e);
+          .catch(function() {
+            //createDocmentIdの戻り値がコレクション内で重複したら新規登録処理をやり直す
+            addFirestoreUser(addUserId);
           });
       };
     },
@@ -193,7 +215,6 @@ export default createStore({
 
       //正規表現（0以上の整数の判定）
       const pattern = /^([1-9]\d*|0)$/;
-
       //整数値が入力されているかチェック
       if (
         pattern.test(loginUserDeposit) &&
@@ -207,59 +228,47 @@ export default createStore({
 
         //ログインユーザーの残高は0以上か
         if (loginUserDeposit - sendMoney < 0) {
+          console.log('残高不足です');
           return;
         }
+
         //ログインユーザーの送金後の残高
         const loginUserRemaingMoney = loginUserDepositNum - sendMoneyNum;
         //受け取り側のユーザーの送金後の残高
         const afterReceivedUserMoney = receiveUserDepositNum + sendMoneyNum;
 
-        //ここまでのデータ遷移は確認
-        // console.log(receiveUserData);
-        // console.log(loginUserDepositNum);
-        // console.log(receiveUserDepositNum);
-        // console.log(sendMoneyNum);
-        console.log(loginUserRemaingMoney);
-        console.log(afterReceivedUserMoney);
-
-
         //furestireからログインユーザーのdepositを取得
-        const updateData = firebase.firestore().collection('users')
+        const updateData = firebase.firestore().collection('users');
 
-        console.log(updateData.where('id', '==', this.state.loginUser.id));
-
-
-
-
-        // updateData
-        //   .where('id', '==', this.state.loginUser.id)
-        //   .update({
-        //     deposit: loginUserRemaingMoney,
-        //   })
-        //   .then(() => {
-        //     console.log('ログインユーザーの残高更新OK');
-        //     //updateRecievedUserDeposit();
-        //   })
-        //   .catch((e) => {
-        //     console.log(e);
-        //   });
+        updateData
+          .doc(this.state.loginUser.doc_id)
+          .update({
+            deposit: loginUserRemaingMoney,
+          })
+          .then(() => {
+            console.log('ログインユーザーの残高更新OK');
+            updateRecievedUserDeposit();
+          })
+          .catch((e) => {
+            console.log(e);
+          });
 
         // //投げ銭を受け取るユーザーのdepositを更新
-        // const updateRecievedUserDeposit = function() {
-        //   updateData
-        //     .where('id', '==', receiveUserData.id)
-        //     .update({
-        //       deposit: afterReceivedUserMoney,
-        //     })
-        //     .then(() => {
-        //       console.log('受けとりユーザーの残高更新OK');
-        //       //userのviewを更新
-        //       context.dispatch('dashboard');
-        //     })
-        //     .catch((e) => {
-        //       console.log(e);
-        //     });
-        // };
+        const updateRecievedUserDeposit = () => {
+          updateData
+            .doc(receiveUserData.doc_id)
+            .update({
+              deposit: afterReceivedUserMoney,
+            })
+            .then(() => {
+              console.log('受けとりユーザーの残高更新OK');
+              //userのviewを更新
+              context.dispatch('dashboard');
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        };
       } else {
         console.log('整数値を入力してください');
       }

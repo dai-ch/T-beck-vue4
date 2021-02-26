@@ -58,7 +58,7 @@
             <div class="content__btn__container">
               <button
                 class="content__btn"
-                v-on:click="sendLoginUserDeposit(userDeposit,getModalUserData)"
+                v-on:click="sendLoginUserDeposit(userDeposit, getModalUserData)"
               >
                 送信
               </button>
@@ -80,7 +80,7 @@ export default {
     return {
       showContent: false,
       sendContent: false,
-      sendMoney:'10',
+      sendMoney: '',
     };
   },
   computed: {
@@ -113,8 +113,12 @@ export default {
       this.showContent = false;
     },
     //ユーザー間でお金を送金する
-    sendLoginUserDeposit(userDeposit,receiveUserData) {
-      this.$store.dispatch('sendDepsitData', { userDeposit: userDeposit,receiveUserData:receiveUserData,sendMoney:this.sendMoney});
+    sendLoginUserDeposit(userDeposit, receiveUserData) {
+      this.$store.dispatch('sendDepsitData', {
+        userDeposit: userDeposit,
+        receiveUserData: receiveUserData,
+        sendMoney: this.sendMoney,
+      });
       this.sendContent = false;
       this.sendMoney = '';
     },
