@@ -58,11 +58,6 @@ export default createStore({
         state.usersList.push(data.data());
       });
     },
-    // reload(state) {
-    //   if (state.reload) {
-    //     //location.reload();
-    //   }
-    // },
   },
   actions: {
     //ユーザー新規登録
@@ -104,12 +99,11 @@ export default createStore({
           }
           return doc_id;
         };
-        const doc_id = createDocmentId();
 
+        const doc_id = createDocmentId();
         //「users」コレクションを取得しusersコレクションへ登録
         let collection = firebase.firestore().collection('users');
-
-        //createDocmentIdが既存のdoc_idと重複していなければ登録処理実行
+        //doc_idが既存のdoc_idと重複していなければ登録処理実行
         collection
           .where('doc_id', '!=', doc_id)
           .get()
@@ -162,7 +156,6 @@ export default createStore({
         .then(() => {
           context.commit('clearUsersList');
           router.go({ path: '/' });
-          //router.push('/');
         })
         .catch((err) => {
           alert(err.message);
@@ -177,14 +170,12 @@ export default createStore({
 
         //furestireからログインユーザーのdepositを取得
         const depositData = firebase.firestore().collection('users');
-
         depositData
           .where('id', '==', loginUserData.uid)
           .get()
           .then((userData) => {
             userData.forEach((user) => {
               //ログインユーザーのdepositを取得する処理
-              //dataはログインユーザーのオブジェクトのみ
               context.commit('loginUserDeposit', user);
             });
           })
@@ -236,7 +227,6 @@ export default createStore({
         const loginUserRemaingMoney = loginUserDepositNum - sendMoneyNum;
         //受け取り側のユーザーの送金後の残高
         const afterReceivedUserMoney = receiveUserDepositNum + sendMoneyNum;
-
         //furestireからログインユーザーのdepositを取得
         const updateData = firebase.firestore().collection('users');
 

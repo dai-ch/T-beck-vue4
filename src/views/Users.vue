@@ -50,16 +50,10 @@
             <p class="content__userDepsit">送る金額</p>
             <p class="content__userDepsit">
               <input
-                type="text"
-                class="content__userDepsit__text"
-                v-model="sendMoney"
-              />
+                type="text" class="content__userDepsit__text" v-model="sendMoney"/>
             </p>
             <div class="content__btn__container">
-              <button
-                class="content__btn"
-                v-on:click="sendLoginUserDeposit(userDeposit, getModalUserData)"
-              >
+              <button class="content__btn" v-on:click="sendLoginUserDeposit(userDeposit, getModalUserData)">
                 送信
               </button>
             </div>
