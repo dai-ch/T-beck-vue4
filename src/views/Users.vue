@@ -44,7 +44,7 @@
       </transition>
       <!-- モーダルウインドウ(送金) -->
       <transition name="fade">
-        <div id="overlay" v-show="sendContent" v-on:click="closeSendContent">
+        <div id="overlay" v-show="sendContent">
           <div id="content">
             <p class="content__userName">あなたの残高:{{ userDeposit }}</p>
             <p class="content__userDepsit">送る金額</p>
@@ -80,7 +80,7 @@ export default {
     return {
       showContent: false,
       sendContent: false,
-      sendMoney:'',
+      sendMoney:'10',
     };
   },
   computed: {

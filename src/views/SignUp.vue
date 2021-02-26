@@ -52,7 +52,7 @@ export default {
   methods: {
     signUp() {
       this.$store.dispatch('signUp', {
-        // uid: this.uid,
+        //uid: this.uid,
         name: this.displayName,
         mailAdress: this.mailAdress,
         password: this.password,
