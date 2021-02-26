@@ -263,7 +263,7 @@ export default createStore({
             .then(() => {
               console.log('受けとりユーザーの残高更新OK');
               //userのviewを更新
-              context.dispatch('dashboard');
+              router.go({ path: '/' });
             })
             .catch((e) => {
               console.log(e);

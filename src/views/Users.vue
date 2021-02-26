@@ -4,7 +4,7 @@
     <div class="header">
       <div class="heeder__comment">{{ userName }}さんようこそ！！</div>
       <div class="balance">
-        残高：{{ userDeposit }}
+        残高：{{ userDeposit }}＄
         <span>
           <button class="logoutBtn" v-on:click="logout">
             ログアウト
@@ -28,14 +28,14 @@
       </ul>
       <!-- モーダルウインドウ(残高確認) -->
       <transition name="fade">
-        <div id="overlay" v-show="showContent">
-          <div id="content">
+        <div id="overlay" v-show="showContent" v-on:click="closeContent">
+          <div id="content" v-on:click="stopEvent">
             <p class="content__userName">
               {{ getModalUserData.name }}さんの残高
             </p>
-            <p class="content__userDepsit">{{ getModalUserData.deposit }}</p>
+            <p class="content__userDepsit">{{ getModalUserData.deposit }}＄</p>
             <div class="content__btn__container">
-              <button class="content__btn" v-on:click="closeDeposit">
+              <button class="content__btn" v-on:click="closeContent">
                 close
               </button>
             </div>
@@ -44,8 +44,8 @@
       </transition>
       <!-- モーダルウインドウ(送金) -->
       <transition name="fade">
-        <div id="overlay" v-show="sendContent">
-          <div id="content">
+        <div id="overlay" v-show="sendContent" v-on:click="closeContent">
+          <div id="content" v-on:click="stopEvent">
             <p class="content__userName">あなたの残高:{{ userDeposit }}</p>
             <p class="content__userDepsit">送る金額</p>
             <p class="content__userDepsit">
@@ -109,8 +109,12 @@ export default {
       this.$store.commit('modalWindowData', { userData: user });
       this.sendContent = true;
     },
-    closeDeposit() {
+    closeContent() {
       this.showContent = false;
+      this.sendContent = false;
+    },
+    stopEvent() {
+      event.stopPropagation();
     },
     //ユーザー間でお金を送金する
     sendLoginUserDeposit(userDeposit, receiveUserData) {
@@ -121,9 +125,6 @@ export default {
       });
       this.sendContent = false;
       this.sendMoney = '';
-    },
-    closeSendContent() {
-      this.sendContent = false;
     },
   },
   mounted() {
