@@ -227,41 +227,45 @@ export default createStore({
         const loginUserRemaingMoney = loginUserDepositNum - sendMoneyNum;
         //受け取り側のユーザーの送金後の残高
         const afterReceivedUserMoney = receiveUserDepositNum + sendMoneyNum;
-        //furestireからログインユーザーのdepositを取得
+
+        //ーーーーーーートランザクション処理ーーーーーーーー
+
+        //Usersコレクションを取得
         const updateData = firebase.firestore().collection('users');
 
-        updateData
-          .doc(this.state.loginUser.doc_id)
-          .update({
-            deposit: loginUserRemaingMoney,
+        //ログインユーザーのドキュメント取得
+        const loginUserDoc = updateData.doc(this.state.loginUser.doc_id);
+        //投げ銭を受領するユーザーのドキュメント取得
+        const receivedUserDoc = updateData.doc(receiveUserData.doc_id);
+
+        return firebase
+          .firestore()
+          .runTransaction((transaction) => {
+            //ログインユーザーからの送金処理
+            return transaction.get(loginUserDoc).then((sfDoc) => {
+              if (!sfDoc.exists) {
+                throw 'sfDoc does not exist!';
+              }
+              //ログインユーザーのdepsit更新
+              transaction.update(loginUserDoc, {
+                deposit: loginUserRemaingMoney,
+              });
+              //受領側ユーザーのdepsit更新
+              transaction.update(receivedUserDoc, {
+                deposit: afterReceivedUserMoney,
+              });
+            });
           })
           .then(() => {
-            console.log('ログインユーザーの残高更新OK');
-            updateRecievedUserDeposit();
+            console.log('受けとりユーザーの残高更新OK');
+            router.go({ path: '/' });
           })
           .catch((e) => {
             console.log(e);
           });
-
-        // //投げ銭を受け取るユーザーのdepositを更新
-        const updateRecievedUserDeposit = () => {
-          updateData
-            .doc(receiveUserData.doc_id)
-            .update({
-              deposit: afterReceivedUserMoney,
-            })
-            .then(() => {
-              console.log('受けとりユーザーの残高更新OK');
-              //userのviewを更新
-              router.go({ path: '/' });
-            })
-            .catch((e) => {
-              console.log(e);
-            });
-        };
       } else {
         console.log('整数値を入力してください');
-      }
+      } //ーーーーーーートランザクション処理終わりーーーーーーーー
     },
   },
   modules: {},
