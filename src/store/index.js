@@ -12,6 +12,7 @@ export default createStore({
       mailAdress: '',
       password: '',
       deposit: '',
+      doc_id: '',
     },
     modalUsersData: [
       {
@@ -20,8 +21,10 @@ export default createStore({
         mailAdress: '',
         password: '',
         deposit: '',
+        doc_id: '',
       },
     ],
+    reloadTrigger: '',
   },
   getters: {
     loginUsername(state) {
@@ -42,12 +45,13 @@ export default createStore({
       state.modalUsersData = data.userData;
     },
     loginUserData(state, user) {
-        state.loginUser.id = user.uid;
-        state.loginUser.name = user.displayName;
-        state.loginUser.mailAdress = user.email;
+      state.loginUser.id = user.uid;
+      state.loginUser.mailAdress = user.email;
     },
     loginUserDeposit(state, depositData) {
       state.loginUser.deposit = depositData.data().deposit;
+      state.loginUser.name = depositData.data().name;
+      state.loginUser.doc_id = depositData.data().doc_id;
     },
     usersListData(state, usersListData) {
       usersListData.forEach((data) => {
@@ -82,31 +86,48 @@ export default createStore({
 
       //firestoreへ新規登録処理
       const addFirestoreUser = function(addUserId) {
+        //ドキュメントIDを管理するための関数
+        const createDocmentId = () => {
+          // 生成する文字列の長さ
+          const l = 30;
+          // 生成する文字列に含める文字セット
+          const str = 'abcdefghijklmnopqrstuvwxyz0123456789';
+          const srtlength = str.length;
+          let doc_id = '';
+          for (let i = 0; i < l; i++) {
+            doc_id += str[Math.floor(Math.random() * srtlength)];
+          }
+          return doc_id;
+        };
+
+        const doc_id = createDocmentId();
         //「users」コレクションを取得しusersコレクションへ登録
         let collection = firebase.firestore().collection('users');
+        //doc_idが既存のdoc_idと重複していなければ登録処理実行
         collection
-          .add({
-            id: addUserId,
-            name: createName,
-            mailAdress: createMailAdress,
-            password: createPassword,
-            deposit: createDeposit,
-          }) //[docRef]は登録情報に関するオブジェクト。
-          .then(function(docRef) {
-            alert('Document written with ID: ', docRef.id);
-          })
-          .catch(function(e) {
-            console.error('Error adding document: ', e);
-          });
-
-        //「users」コレクションの全データを取得し、stateを変更するためmutationを経由させる
-        collection
+          .where('doc_id', '!=', doc_id)
           .get()
-          .then(function(usersData) {
-            context.commit('usersData', usersData);
+          .then(() => {
+            collection
+              .doc(doc_id)
+              .set({
+                id: addUserId,
+                name: createName,
+                mailAdress: createMailAdress,
+                password: createPassword,
+                deposit: createDeposit,
+                doc_id: doc_id,
+              })
+              .then(function() {
+                console.log('登録OKです');
+              })
+              .catch(function(e) {
+                console.error('Error adding document: ', e);
+              });
           })
-          .catch(function(e) {
-            console.error('Error adding document: ', e);
+          .catch(function() {
+            //createDocmentIdの戻り値がコレクション内で重複したら新規登録処理をやり直す
+            addFirestoreUser(addUserId);
           });
       };
     },
@@ -135,7 +156,6 @@ export default createStore({
         .then(() => {
           context.commit('clearUsersList');
           router.go({ path: '/' });
-          //router.push('/');
         })
         .catch((err) => {
           alert(err.message);
@@ -150,14 +170,12 @@ export default createStore({
 
         //furestireからログインユーザーのdepositを取得
         const depositData = firebase.firestore().collection('users');
-
         depositData
           .where('id', '==', loginUserData.uid)
           .get()
           .then((userData) => {
             userData.forEach((user) => {
               //ログインユーザーのdepositを取得する処理
-              //dataはログインユーザーのオブジェクトのみ
               context.commit('loginUserDeposit', user);
             });
           })
@@ -177,6 +195,77 @@ export default createStore({
             console.log(e);
           });
       });
+    },
+    sendDepsitData(context, sendDepsitData) {
+      //ログインユーザーの残高
+      let loginUserDeposit = sendDepsitData.userDeposit;
+      //受け取り側のユーザーデータ
+      let receiveUserData = sendDepsitData.receiveUserData;
+      //ログインユーザーが送ったお金
+      let sendMoney = sendDepsitData.sendMoney;
+
+      //正規表現（0以上の整数の判定）
+      const pattern = /^([1-9]\d*|0)$/;
+      //整数値が入力されているかチェック
+      if (
+        pattern.test(loginUserDeposit) &&
+        pattern.test(receiveUserData.deposit) &&
+        pattern.test(sendMoney)
+      ) {
+        //int型へ変換
+        const loginUserDepositNum = parseInt(loginUserDeposit);
+        const receiveUserDepositNum = parseInt(receiveUserData.deposit);
+        const sendMoneyNum = parseInt(sendMoney);
+
+        //ログインユーザーの残高は0以上か
+        if (loginUserDeposit - sendMoney < 0) {
+          console.log('残高不足です');
+          return;
+        }
+
+        //ログインユーザーの送金後の残高
+        const loginUserRemaingMoney = loginUserDepositNum - sendMoneyNum;
+        //受け取り側のユーザーの送金後の残高
+        const afterReceivedUserMoney = receiveUserDepositNum + sendMoneyNum;
+
+        //ーーーーーーートランザクション処理ーーーーーーーー
+
+        //Usersコレクションを取得
+        const updateData = firebase.firestore().collection('users');
+
+        //ログインユーザーのドキュメント取得
+        const loginUserDoc = updateData.doc(this.state.loginUser.doc_id);
+        //投げ銭を受領するユーザーのドキュメント取得
+        const receivedUserDoc = updateData.doc(receiveUserData.doc_id);
+
+        return firebase
+          .firestore()
+          .runTransaction((transaction) => {
+            //ログインユーザーからの送金処理
+            return transaction.get(loginUserDoc).then((sfDoc) => {
+              if (!sfDoc.exists) {
+                throw 'sfDoc does not exist!';
+              }
+              //ログインユーザーのdepsit更新
+              transaction.update(loginUserDoc, {
+                deposit: loginUserRemaingMoney,
+              });
+              //受領側ユーザーのdepsit更新
+              transaction.update(receivedUserDoc, {
+                deposit: afterReceivedUserMoney,
+              });
+            });
+          })
+          .then(() => {
+            console.log('受けとりユーザーの残高更新OK');
+            router.go({ path: '/' });
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      } else {
+        console.log('整数値を入力してください');
+      } //ーーーーーーートランザクション処理終わりーーーーーーーー
     },
   },
   modules: {},
